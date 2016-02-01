@@ -1,0 +1,45 @@
+sirjenkins:
+  build: .
+  ports:
+    - 8080:8080
+    - 50000:50000
+  volumes:
+    - ./home/init.groovy.d:/var/jenkins_home/init.groovy.d
+    - ./home/plugins:/var/jenkins_home/plugins
+    - ./home/ssh:/var/jenkins_home/.ssh
+    - ./ci:/ci
+    # - /var/run/docker.sock:/var/run/docker.sock # sharing my daemon socket
+    # - /usr/local/bin/docker:/bin/docker
+  environment:
+    # - 'SEEDJOB_GIT=git@github.com:jnbnyc/spark.git'
+    - 'BUILD=local'
+    #- 'DOCKER_REPO=http://artifactory:8081/artifactory'
+    - 'JENKINS_SLAVE_AGENT_PORT=50000'
+    - 'ADMIN_ADDRESS='
+    - 'EXECUTORS=1'
+    - 'DEPENDENCY=sirjenkins.json'
+    - 'GITHUB_USER=jnbnyc'
+    - 'GITHUB_USEROAUTH='
+    - 'GITHUB_ORG='
+    - 'GITHUB_INCLUDE=poc'
+    # - 'DATADOG_APIKEY='
+    - 'ARTIFACTORY_HOSTNAME=sirjenkins_artifactory_pro_1'
+    # - 'ARTIFACTORY_DEPLOYER_USERNAME=admin'
+    # - 'ARTIFACTORY_DEPLOYER_PASSWORD=password'
+    # - 'ARTIFACTORY_RESOLVER_USERNAME='
+    # - 'ARTIFACTORY_RESOLVER_PASSWORD='
+  links:
+    - artifactory_pro
+
+artifactory_pro:
+  image: jfrog-docker-reg2.bintray.io/jfrog/artifactory-pro
+  volumes:
+    - "../../../artifactory/license:/var/opt/jfrog/artifactory/etc/artifactory.lic"
+    # - /var/opt/jfrog/run/artifactory.pid
+  ports:
+    - 80:80
+    - 8081:8081
+    - 5000:5000
+    - 5001:5001
+    - 5002:5002
+
