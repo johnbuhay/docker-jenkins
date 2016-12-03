@@ -1,2 +1,5 @@
+.*
+!.dockerignore
+*.setup.yml
 home/ssh
 home/plugins
