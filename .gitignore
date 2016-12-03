@@ -1,5 +1,7 @@
 .*
 !.dockerignore
-*.setup.yml
+**/setup.yml
 home/ssh
 home/plugins
+home/workspace
+**/jenkins_jobs.ini

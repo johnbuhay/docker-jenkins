@@ -1,2 +1,3 @@
 */*.env
 */setup.yml
+*/jenkins_jobs.ini
