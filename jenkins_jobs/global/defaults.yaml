@@ -1,0 +1,15 @@
+- defaults:
+    name: global
+    project-type: freestyle
+    properties:
+      - build-discarder:
+          days-to-keep: 30
+          numToKeep: 5
+          artifactDaysToKeep: -1
+          artifactNumToKeep: -1
+    wrappers:
+      - timeout:
+          timeout: 30
+          fail: true
+      - timestamps
+      - ansicolor
