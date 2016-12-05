@@ -1,0 +1,90 @@
+---
+# Variables that need to be defined are shown in this format: {{variable_name}}
+
+admin:
+  username: &admin_user sirjenkins
+  password: password
+  email: &admin_email admin@sirjenkins.io
+
+credentials:
+  - global:
+      -
+        username: {{gh_username}}
+        password: {{gh_token_or_password}}
+        id: github-api-{{username}}
+        description:
+
+executors:
+  master: 3
+
+git:
+  config:
+    name: *admin_user
+    email: *admin_email
+    scopes: read:org,user:email
+
+github:
+  org_name:
+  oauth:
+    client_id:
+    client_secret:
+
+mailer:
+  smtp_email: *admin_email
+  smtp_password: password
+  smtp_host:
+
+jnlp_port: 5000
+
+seed_jobdsl: |
+  def git_url = 'https://github.com'
+  def ci_repo = '{{org_or_user}}/{{ci_repo}}'
+  def ci_branch = 'master'
+  def creds = 'github-api-{{username}}'
+  
+  def folder_name = 'ci'
+  def job_name = 'master'
+  def downstream_folder_name = 'ci'
+  def downstream_job_name = 'master'
+
+  folder(folder_name)
+  job("${folder_name}/${job_name}") {
+      description('This job is auto-magically generated.')
+      disabled(false)
+      logRotator(daysToKeep = 14, numToKeep = 9)
+      steps {
+        if (System.getenv('BUILD_ENV') == 'local') {
+          shell('test -L ci || ln -s /sirjenkins-ci ci')
+        } else {
+          scm {
+            git {
+              remote {
+                url("${git_url}/${ci_repo}")
+                credentials("${creds}")
+              }
+              branch("${ci_branch}")
+              relativeTargetDirectory('ci')
+            }
+          }
+        }
+        systemGroovyScriptFile('ci/github-scanner.groovy')
+        dsl {
+            external('ci/create_projects.dsl')
+            ignoreExisting(false)
+            removeAction('DELETE')
+            removeViewAction('DELETE')
+        }
+      }
+      triggers {
+        scm('') {
+            ignorePostCommitHooks(false)
+        }
+      }
+      publishers {
+        downstream("${downstream_folder_name}/${downstream_job_name}-downstream")
+      }
+  }
+
+set_master_kill_switch: true
+web_port: 8080
+web_proto: http
