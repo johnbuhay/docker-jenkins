@@ -12,6 +12,8 @@ import com.cloudbees.plugins.credentials.domains.*
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import com.cloudbees.plugins.credentials.CredentialsScope
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
+import hudson.util.Secret
+import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
 
 import jenkins.model.*
 import jenkins.security.*
@@ -50,11 +52,20 @@ Thread.start {
 
     config.credentials.each {
         it.global.each {
-            credentials = new UsernamePasswordCredentialsImpl(CredentialsScope.USER,
-                it.id, it.description, it.username, it.password)
-            credentials_store.addCredentials(Domain.global(), credentials)
+            if(it.username) {
+                def credentials = new UsernamePasswordCredentialsImpl(CredentialsScope.USER,
+                    it.id, it.description, it.username, it.password)
+                credentials_store.addCredentials(Domain.global(), credentials)
+            }
+            if(it.secret_text){
+                def secret = new Secret(it.secret_text)
+                def string_credentials = new StringCredentialsImpl(CredentialsScope.USER,
+                    it.id, it.description, secret)
+                credentials_store.addCredentials(Domain.global(), string_credentials)
+            }
         }
     }
+    JENKINS.save()
     logger.info('Configured Global Credentials')
 }
 
