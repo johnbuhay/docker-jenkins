@@ -35,6 +35,14 @@ Thread.start {
     System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone', TZ)
 }
 
+// disable sending anonymous usage statistics
+Thread.start {
+    // adds '<noUsageStatistics>true</noUsageStatistics>' to $JENKINS_HOME/config.xml
+    Jenkins.instance.setNoUsageStatistics(true)
+    Jenkins.instance.save()
+    // println Jenkins.getInstance().isUsageStatisticsCollected()
+}
+
 // setup master executors
 Thread.start {
     def JENKINS = Jenkins.getInstance()
