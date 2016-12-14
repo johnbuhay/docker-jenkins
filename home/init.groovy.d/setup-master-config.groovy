@@ -19,7 +19,9 @@ import jenkins.model.*
 import jenkins.security.*
 import hudson.model.*
 import hudson.security.*
-import hudson.plugins.sshslaves.*;
+import hudson.plugins.sshslaves.*
+
+import net.bull.javamelody.*
 
 env = System.getenv()
 JENKINS_SETUP_YAML = env['JENKINS_SETUP_YAML'] ?: "${env['JENKINS_CONFIG_HOME']}/setup.yml"
@@ -36,7 +38,10 @@ Thread.start {
 // setup master executors
 Thread.start {
     def JENKINS = Jenkins.getInstance()
-    int executors = env['JENKINS_EXECUTORS'] ?: config.executors.master.toInteger() ?: 2
+    // import net.bull.javamelody.*
+    java = new JavaInformations(Parameters.getServletContext(), true)
+    int executors = env['JENKINS_EXECUTORS'] ?: config.executors.master.toInteger() ?: java.availableProcessors
+
     int current_executors = JENKINS.getNumExecutors()
     if (current_executors != executors) {
         JENKINS.setNumExecutors(executors)
