@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     environment:
-      - HOSTNAME=192.168.99.100
+      - HOSTNAME=jenkins.local
       - BUILD_ENV=local
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

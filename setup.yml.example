@@ -9,9 +9,12 @@ admin:
 credentials:
   - global:
       -
+        id: &github_token_id github-token-secret-text
+        secret_text: {{github_api_token}}
+      -
         username: {{gh_username}}
         password: {{gh_token_or_password}}
-        id: github-api-{{username}}
+        id: &github_api_creds github-api-{{username}}
         description:
 
 executors:
@@ -28,11 +31,34 @@ github:
   oauth:
     client_id:
     client_secret:
+  servers:
+    -
+      api_url: https://api.github.com
+      credentials: *github_token_id
+      client_cache_size:
+  folders:
+    -
+      owner: jnbnyc
+      scan_creds: *github_api_creds
 
 mailer:
   smtp_email: *admin_email
   smtp_password: password
   smtp_host:
+
+pipeline_libs:
+  -
+    id:
+    name: yaml-to-jenkins
+    default_version: master
+    allow_version_override: true
+    load_implicitly: true
+    scm_api_uri:
+    scm_checkout_creds:
+    scm_type: github
+    scm_owner: jnbnyc
+    scm_scan_creds: *github_api_creds
+    scm_repo: yaml-to-jenkins
 
 jnlp_port: 5000
 
@@ -85,6 +111,11 @@ seed_jobdsl: |
       }
   }
 
-set_master_kill_switch: true
-web_port: 8080
+sshd_port: # this must be an integer gt 1024
+
+theme:
+  css_url: userContent/jenkins-material-theme.css
+  js_url:
+
+web_port: 80
 web_proto: http
