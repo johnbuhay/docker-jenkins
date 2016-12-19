@@ -11,6 +11,7 @@ ADD pip-requirements.txt /root/
 RUN apk add --no-cache docker py-pip &&\
     adduser jenkins users &&\
     adduser jenkins docker &&\
+    pip install --upgrade pip &&\
     pip install --no-cache-dir -r /root/pip-requirements.txt
 # pip freeze --disable-pip-version-check > pip-requirements.txt
 
@@ -36,6 +37,7 @@ RUN /usr/local/bin/install-plugins.sh \
     # permissive-script-security  -Dpermissive-script-security.enabled=true
     # sidebar-link
 
+ADD setup.yml.example ${JENKINS_CONFIG_HOME}/setup.yml
 ADD home/init.groovy.d/*.groovy /var/jenkins_home/init.groovy.d/
 ADD org.jenkinsci.main.modules.sshd.SSHD.xml /var/jenkins_home/
 ADD *.css /var/jenkins_home/userContent/

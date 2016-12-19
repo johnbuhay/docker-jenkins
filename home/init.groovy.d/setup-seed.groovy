@@ -1,6 +1,4 @@
-@Grapes([
-    @Grab(group='org.yaml', module='snakeyaml', version='1.17')
-])
+@Grab(group='org.yaml', module='snakeyaml', version='1.17')
 
 import org.yaml.snakeyaml.Yaml
 import javaposse.jobdsl.dsl.DslScriptLoader
@@ -14,14 +12,18 @@ Logger logger = Logger.getLogger('seed.groovy')
 
 
 Thread.start {
-    WORKSPACE_BASE = "${env['JENKINS_HOME']}/workspace"
-    def workspace = new File("${WORKSPACE_BASE}")
-    // workspace.mkdirs()
-    // def seedJobDsl = new File("${WORKSPACE_BASE}/seed.groovy")
-    def seedJobDsl = config.seed_jobdsl
-    logger.info(seedJobDsl)
+    try {
+        def seedJobDsl = config.seed_jobdsl
+        WORKSPACE_BASE = "${env['JENKINS_HOME']}/workspace"
+        def workspace = new File("${WORKSPACE_BASE}")
+        // workspace.mkdirs()
+        // def seedJobDsl = new File("${WORKSPACE_BASE}/seed.groovy")
+        // logger.info(seedJobDsl)
 
-    def jobManagement = new JenkinsJobManagement(System.out, [:], workspace)
-    new DslScriptLoader(jobManagement).runScript(seedJobDsl)
-    logger.info('Created first job')
+        def jobManagement = new JenkinsJobManagement(System.out, [:], workspace)
+        new DslScriptLoader(jobManagement).runScript(seedJobDsl)
+        logger.info('Created first job from seed')
+    } catch(e) {
+        logger.info('Did not create seed job')
+    }
 }

@@ -33,6 +33,18 @@ logger.info('Started setting up matrix auth')
     
     credentials_store = JENKINS.getExtensionList(PLUGIN)[0].getStore()
 
+    if((env['JENKINS_GITHUB_USER'] != null) && (env['JENKINS_GITHUB_TOKEN'] != null)) {
+        def master_creds = [:]
+        master_creds['username'] = env['JENKINS_GITHUB_USER']
+        master_creds['password'] = env['JENKINS_GITHUB_TOKEN']
+        master_creds['id'] = 'master-creds'
+        def master_token = [:]
+        master_token['secret_text'] = env['JENKINS_GITHUB_TOKEN']
+        master_token['id'] = 'master-token'
+        config.credentials.global[0].add(master_creds)
+        config.credentials.global[0].add(master_token)
+    }
+
     config.credentials.each {
         it.global.each {
             if(it.username) {

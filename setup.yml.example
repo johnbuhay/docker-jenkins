@@ -7,15 +7,7 @@ admin:
   email: &admin_email admin@sirjenkins.io
 
 credentials:
-  - global:
-      -
-        id: &github_token_id github-token-secret-text
-        secret_text: {{github_api_token}}
-      -
-        username: {{gh_username}}
-        password: {{gh_token_or_password}}
-        id: &github_api_creds github-api-{{username}}
-        description:
+  - global: []
 
 executors:
   master: 3
@@ -34,12 +26,12 @@ github:
   servers:
     -
       api_url: https://api.github.com
-      credentials: *github_token_id
+      credentials: &github_token_id master-token
       client_cache_size:
   folders:
     -
       owner: jnbnyc
-      scan_creds: *github_api_creds
+      scan_creds: &github_api_creds master-creds
 
 mailer:
   smtp_email: *admin_email
@@ -51,10 +43,10 @@ pipeline_libs:
     id:
     name: yaml-to-jenkins
     default_version: master
-    allow_version_override: true
+    allow_version_override: false
     load_implicitly: true
     scm_api_uri:
-    scm_checkout_creds:
+    scm_checkout_creds: SAME
     scm_type: github
     scm_owner: jnbnyc
     scm_scan_creds: *github_api_creds
@@ -62,60 +54,11 @@ pipeline_libs:
 
 jnlp_port: 5000
 
-seed_jobdsl: |
-  def git_url = 'https://github.com'
-  def ci_repo = '{{org_or_user}}/{{ci_repo}}'
-  def ci_branch = 'master'
-  def creds = 'github-api-{{username}}'
-  
-  def folder_name = 'ci'
-  def job_name = 'master'
-  def downstream_folder_name = 'ci'
-  def downstream_job_name = 'master'
-
-  folder(folder_name)
-  job("${folder_name}/${job_name}") {
-      description('This job is auto-magically generated.')
-      disabled(false)
-      logRotator(daysToKeep = 14, numToKeep = 9)
-      steps {
-        if (System.getenv('BUILD_ENV') == 'local') {
-          shell('test -L ci || ln -s /sirjenkins-ci ci')
-        } else {
-          scm {
-            git {
-              remote {
-                url("${git_url}/${ci_repo}")
-                credentials("${creds}")
-              }
-              branch("${ci_branch}")
-              relativeTargetDirectory('ci')
-            }
-          }
-        }
-        systemGroovyScriptFile('ci/github-scanner.groovy')
-        dsl {
-            external('ci/create_projects.dsl')
-            ignoreExisting(false)
-            removeAction('DELETE')
-            removeViewAction('DELETE')
-        }
-      }
-      triggers {
-        scm('') {
-            ignorePostCommitHooks(false)
-        }
-      }
-      publishers {
-        downstream("${downstream_folder_name}/${downstream_job_name}-downstream")
-      }
-  }
-
 sshd_port: # this must be an integer gt 1024
 
 theme:
   css_url: userContent/jenkins-material-theme.css
   js_url:
 
-web_port: 80
+web_port: 8080
 web_proto: http
