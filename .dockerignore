@@ -1,3 +1,5 @@
-*/*.env
-*/setup.yml
-*/jenkins_jobs.ini
+*
+!*.jar
+!jenkins_home/init.groovy.d/*.groovy
+!xml/*.xml
+!assets
