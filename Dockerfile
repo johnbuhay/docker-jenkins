@@ -9,12 +9,6 @@ ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Djava.awt.headless=true" 
 # Add java utils
 ADD https://repo1.maven.org/maven2/org/yaml/snakeyaml/1.18/snakeyaml-1.18.jar /usr/lib/jvm/java-1.8-openjdk/jre/lib/
 
-# install docker
-USER root
-RUN apk add --no-cache --virtual docker py-pip \
-    && adduser jenkins users \
-    && adduser jenkins docker
-
 USER jenkins
 WORKDIR /var/jenkins_home
 RUN mkdir -pv /var/jenkins_home/setup /var/jenkins_home/secrets \
